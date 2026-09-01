@@ -1,0 +1,78 @@
+name: Añadir enlace (desde iOS Shortcuts)
+
+# Se dispara normalmente cuando el Atajo de iOS llama a:
+#   POST https://api.github.com/repos/<owner>/<repo>/dispatches
+#   { "event_type": "add-link", "client_payload": { "filename", "url", "title" } }
+#
+# También se puede lanzar a mano desde la pestaña "Actions" de GitHub
+# (botón "Run workflow") para probarlo sin necesidad del iPhone todavía.
+on:
+  repository_dispatch:
+    types: [add-link]
+  workflow_dispatch:
+    inputs:
+      filename:
+        description: "Archivo de la categoría, p. ej. noticias.json"
+        required: true
+      url:
+        description: "URL a guardar"
+        required: true
+      title:
+        description: "Título (opcional)"
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  add-link:
+    runs-on: ubuntu-latest
+    env:
+      FILENAME_RAW: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.filename || github.event.client_payload.filename }}
+      URL_RAW: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.url || github.event.client_payload.url }}
+      TITLE_RAW: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.title || github.event.client_payload.title }}
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Validar el nombre de archivo recibido
+        run: |
+          if [[ ! "$FILENAME_RAW" =~ ^[a-zA-Z0-9_-]+\.json$ ]]; then
+            echo "::error::Nombre de archivo no válido: '$FILENAME_RAW'"
+            exit 1
+          fi
+          echo "FILENAME=$FILENAME_RAW" >> "$GITHUB_ENV"
+
+      - name: Añadir el enlace al archivo JSON de la categoría
+        env:
+          URL: ${{ env.URL_RAW }}
+          TITLE: ${{ env.TITLE_RAW }}
+        run: |
+          FILE="$FILENAME"
+
+          if [ ! -f "$FILE" ]; then
+            echo '{"tags":[],"entries":[]}' > "$FILE"
+          fi
+
+          # Migra el formato antiguo (array plano) si hiciera falta.
+          if jq -e 'type == "array"' "$FILE" > /dev/null 2>&1; then
+            jq '{tags: [], entries: .}' "$FILE" > "$FILE.tmp" && mv "$FILE.tmp" "$FILE"
+          fi
+
+          ID=$(cat /proc/sys/kernel/random/uuid | cut -c1-8)
+          DATE=$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")
+          TITLE_FINAL="${TITLE:-$URL}"
+
+          jq --arg id "$ID" --arg url "$URL" --arg title "$TITLE_FINAL" --arg date "$DATE" \
+            '.entries = [{id: $id, url: $url, title: $title, pageUrl: $url, date: $date, tags: []}] + .entries' \
+            "$FILE" > "$FILE.tmp" && mv "$FILE.tmp" "$FILE"
+
+          echo "TITLE_FINAL=$TITLE_FINAL" >> "$GITHUB_ENV"
+
+      - name: Commit y push
+        run: |
+          git config user.name "Enlaces Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "$FILENAME"
+          git commit -m "Añade enlace: $TITLE_FINAL" || echo "Sin cambios que confirmar"
+          git push
