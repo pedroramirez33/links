@@ -43,7 +43,7 @@ jobs:
           fi
           echo "FILENAME=$FILENAME_RAW" >> "$GITHUB_ENV"
 
-      - name: Añadir el enlace al archivo JSON de la categoría
+      - name: Añadir el enlace y confirmar cambios
         env:
           URL: ${{ env.URL_RAW }}
           TITLE: ${{ env.TITLE_RAW }}
@@ -67,12 +67,13 @@ jobs:
             '.entries = [{id: $id, url: $url, title: $title, pageUrl: $url, date: $date, tags: []}] + .entries' \
             "$FILE" > "$FILE.tmp" && mv "$FILE.tmp" "$FILE"
 
-          echo "TITLE_FINAL=$TITLE_FINAL" >> "$GITHUB_ENV"
+          # Mensaje de commit: una sola línea, sin saltos de línea y con longitud razonable.
+          # (A diferencia de escribir en $GITHUB_ENV, esto se queda dentro del mismo paso
+          # y admite perfectamente texto con saltos de línea, comillas, etc.)
+          COMMIT_TITLE=$(printf '%s' "$TITLE_FINAL" | tr '\n' ' ' | cut -c1-100)
 
-      - name: Commit y push
-        run: |
           git config user.name "Enlaces Bot"
           git config user.email "actions@users.noreply.github.com"
-          git add "$FILENAME"
-          git commit -m "Añade enlace: $TITLE_FINAL" || echo "Sin cambios que confirmar"
+          git add "$FILE"
+          git commit -m "Añade enlace: $COMMIT_TITLE" || echo "Sin cambios que confirmar"
           git push
