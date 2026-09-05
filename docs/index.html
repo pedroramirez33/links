@@ -1,1 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Mis Enlaces</title>
+<meta name="theme-color" content="#171510" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" href="icons/icon-192.png" />
+<link rel="apple-touch-icon" href="icons/icon-192.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
 
+<header class="topbar">
+  <h1>Mis enlaces</h1>
+  <div class="topbar-actions">
+    <a id="manage-link" class="icon-btn" href="noticias.html" title="Gestionar Noticias" aria-label="Gestionar Noticias">✎</a>
+    <button id="refresh-btn" class="icon-btn" title="Actualizar" aria-label="Actualizar">↻</button>
+    <button id="settings-btn" class="icon-btn" title="Ajustes" aria-label="Ajustes">⚙</button>
+  </div>
+</header>
+
+<nav id="category-tabs" class="category-tabs" aria-label="Categorías"></nav>
+
+<main id="content" class="content">
+  <div id="empty-state" class="empty-state" hidden>
+    <p class="empty-title">Aún no hay fichas aquí</p>
+    <p class="empty-sub">Guarda un enlace desde el navegador con la extensión y aparecerá al actualizar.</p>
+  </div>
+  <ul id="link-list" class="link-list" hidden></ul>
+</main>
+
+<div id="install-banner" class="install-banner" hidden>
+  <span>Instala esta app en tu pantalla de inicio</span>
+  <button id="install-btn">Instalar</button>
+  <button id="dismiss-install-btn" class="icon-btn" aria-label="Cerrar">✕</button>
+</div>
+
+<div id="settings-overlay" class="overlay" hidden>
+  <div class="settings-panel">
+    <h2>Ajustes</h2>
+    <p class="hint">Apunta esta app al mismo repositorio de GitHub que usa tu extensión "Incluir enlace en...".</p>
+
+    <label for="cfg-owner">Usuario u organización</label>
+    <input type="text" id="cfg-owner" placeholder="tu-usuario" />
+
+    <label for="cfg-repo">Repositorio</label>
+    <input type="text" id="cfg-repo" placeholder="mis-enlaces" />
+
+    <label for="cfg-branch">Rama</label>
+    <input type="text" id="cfg-branch" placeholder="main" />
+
+    <label>Categorías</label>
+    <table class="cat-table">
+      <thead><tr><th>Nombre</th><th>Archivo</th><th></th></tr></thead>
+      <tbody id="cfg-cat-body"></tbody>
+    </table>
+    <button id="cfg-add-cat" type="button" class="link-btn">+ Añadir categoría</button>
+
+    <div class="settings-footer">
+      <button id="cfg-cancel" type="button" class="ghost-btn">Cancelar</button>
+      <button id="cfg-save" type="button" class="primary-btn">Guardar</button>
+    </div>
+    <p id="cfg-status" class="status"></p>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Noticias — Mis enlaces</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="catalog.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <h1>📰 Noticias</h1>
+  <div class="topbar-actions">
+    <button id="select-btn" class="icon-btn" title="Seleccionar varias" aria-label="Seleccionar varias">☑</button>
+    <button id="refresh-btn" class="icon-btn" title="Actualizar" aria-label="Actualizar">↻</button>
+    <button id="settings-btn" class="icon-btn" title="Ajustes" aria-label="Ajustes">⚙</button>
+  </div>
+</header>
+
+<div class="controls">
+  <input type="search" id="search-input" placeholder="Buscar por título o fuente…" />
+  <div class="control-row">
+    <div class="sort-group" id="sort-group">
+      <button class="chip-btn active" data-sort="recientes">Recientes</button>
+      <button class="chip-btn" data-sort="titulo">Título A-Z</button>
+    </div>
+    <button id="manage-tags-btn" class="chip-btn ghost">🏷 Etiquetas</button>
+  </div>
+  <div class="tag-filter" id="tag-filter"></div>
+</div>
+
+<p id="count-note" class="count-note"></p>
+
+<main id="content" class="content">
+  <div id="loading" class="empty-state">
+    <p class="empty-title">Cargando…</p>
+  </div>
+  <div id="empty-state" class="empty-state" hidden>
+    <p class="empty-title">Aún no hay noticias guardadas aquí</p>
+    <p class="empty-sub">Guarda alguna desde la extensión, el botón de la barra, o el Atajo del móvil.</p>
+  </div>
+  <div id="error-state" class="empty-state" hidden>
+    <p class="empty-title">No se pudo cargar</p>
+    <p class="empty-sub" id="error-msg"></p>
+  </div>
+  <ul id="link-list" class="link-list" hidden></ul>
+</main>
+
+<button id="add-fab" class="fab" title="Añadir enlace manualmente">+</button>
+
+<div id="bulk-bar" class="bulk-bar" hidden>
+  <span id="bulk-count">0 seleccionadas</span>
+  <div class="bulk-actions">
+    <button id="bulk-cancel" class="ghost-btn">Cancelar</button>
+    <button id="bulk-delete" class="danger-btn">Eliminar</button>
+  </div>
+</div>
+
+<!-- Ajustes del repositorio -->
+<div id="settings-overlay" class="overlay" hidden>
+  <div class="panel">
+    <h2>Ajustes del repositorio</h2>
+    <p class="hint">Mismo repo que usan tu extensión y el Atajo de iOS.</p>
+    <label for="cfg-owner">Usuario</label>
+    <input type="text" id="cfg-owner" placeholder="tu-usuario" />
+    <label for="cfg-repo">Repositorio</label>
+    <input type="text" id="cfg-repo" placeholder="links" />
+    <label for="cfg-branch">Rama</label>
+    <input type="text" id="cfg-branch" placeholder="main" />
+    <label for="cfg-token">Token (fine-grained, Contents: Read/write)</label>
+    <input type="password" id="cfg-token" placeholder="github_pat_…" />
+    <label for="cfg-filename">Archivo de esta categoría</label>
+    <input type="text" id="cfg-filename" placeholder="noticias.json" />
+    <div class="panel-footer">
+      <button id="cfg-cancel" class="ghost-btn">Cancelar</button>
+      <button id="cfg-save" class="primary-btn">Guardar</button>
+    </div>
+    <p id="cfg-status" class="status"></p>
+  </div>
+</div>
+
+<!-- Añadir / editar entrada -->
+<div id="entry-overlay" class="overlay" hidden>
+  <div class="panel">
+    <h2 id="entry-title">Añadir enlace</h2>
+    <label for="entry-url">URL</label>
+    <input type="text" id="entry-url" placeholder="https://…" />
+    <label for="entry-name">Título (opcional)</label>
+    <input type="text" id="entry-name" placeholder="Se usará la URL si lo dejas vacío" />
+    <label>Etiquetas</label>
+    <div id="entry-tags" class="tag-toggle-list"></div>
+    <div class="panel-footer">
+      <button id="entry-cancel" class="ghost-btn">Cancelar</button>
+      <button id="entry-save" class="primary-btn">Guardar</button>
+    </div>
+    <p id="entry-status" class="status"></p>
+  </div>
+</div>
+
+<!-- Gestionar etiquetas del archivo -->
+<div id="tags-overlay" class="overlay" hidden>
+  <div class="panel">
+    <h2>Etiquetas de Noticias</h2>
+    <p class="hint">Propias de este archivo — no se comparten con otras categorías.</p>
+    <div id="tags-manage-list" class="tag-manage-list"></div>
+    <div class="add-tag-row">
+      <input type="text" id="new-tag-input" placeholder="Nueva etiqueta…" />
+      <button id="new-tag-add" class="ghost-btn">Añadir</button>
+    </div>
+    <div class="panel-footer">
+      <button id="tags-close" class="primary-btn">Cerrar</button>
+    </div>
+    <p id="tags-status" class="status"></p>
+  </div>
+</div>
+
+<script src="github-store.js"></script>
+<script src="noticias.js"></script>
+</body>
+</html>
